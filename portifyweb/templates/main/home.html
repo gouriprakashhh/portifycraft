@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PortifyCraft</title>
+</head>
+<body>
+
+    {% if user %}
+        {% include 'main/home_logged_in.html' %}
+    {% else %}
+        {% include 'main/home_guest.html' %}
+    {% endif %}
+
+</body>
+</html>

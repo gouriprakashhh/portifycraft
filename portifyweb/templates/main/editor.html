@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en" x-data="formStepper()" class="font-sans text-gray-900 bg-white">
+<head>
+    <meta charset="UTF-8">
+    <title>PortifyCraft | Create Your Portfolio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<style>
+    [x-cloak] {
+        display: none !important;
+    }
+
+    .animate-match {
+        animation: pulse-scale 1s ease-out forwards;
+        will-change: transform, opacity;
+    }
+
+    @keyframes pulse-scale {
+        0% {
+            transform: scale(0.95);
+            opacity: 0.5;
+        }
+
+        50% {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+</style>
+
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+    <form @submit.prevent="submitForm" method="POST" action="{% url 'generate_page' %}" enctype="multipart/form-data" 
+          class="bg-white p-4 sm:p-8 rounded-xl shadow-lg w-full max-w-xl space-y-4">
+        {% csrf_token %}
+        
+        <!-- Progress header -->
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-xl sm:text-2xl font-bold">Create Your Portfolio</h1>
+            <span class="text-sm text-gray-500">Step <span x-text="step"></span>/<span x-text="maxStep"></span></span>
+        </div>
+        
+        <!-- Progress bar -->
+        <div class="h-1.5 bg-gray-200 rounded-full mb-6">
+            <div class="h-full bg-blue-600 rounded-full transition-all duration-300" 
+                 :style="`width: ${(step/maxStep)*100}%`"></div>
+        </div>
+        
+    <!-- Loading overlay -->
+<template x-if="isSubmitting">
+    <div class="fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-50 p-4">
+        <div class="animate-match mb-6">
+            <svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 text-center mb-2">Generating Your Portfolio</h3>
+        <p class="text-gray-600 text-center max-w-md mb-6" x-text="loadingMessage"></p>
+
+        <div class="w-full max-w-xs h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-full bg-blue-600 rounded-full transition-all duration-300"
+                :style="`width: ${loadingProgress}%`">
+            </div>
+        </div>
+        <p class="text-sm text-gray-500 mt-2" x-text="`${loadingProgress}% complete`"></p>
+    </div>
+</template>
+
+
+        <!-- Step 1: Personal Details -->
+        <div x-show="step === 1" x-transition.opacity class="space-y-4">
+            <h2 class="text-lg sm:text-xl font-semibold">Personal Details</h2>
+
+            <template x-if="stepErrors.message">
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 flex items-start">
+                    <svg class="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                    <p class="ml-3 text-sm text-red-700" x-text="stepErrors.message"></p>
+                </div>
+            </template>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block mb-1 font-medium text-sm sm:text-base">Full Name*</label>
+                    <input type="text" x-model="form.full_name" 
+                           :class="{'border-red-500': errors.full_name}"
+                           class="w-full p-2 sm:p-3 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                           placeholder="John Doe" required>
+                    <p class="text-red-500 text-xs mt-1" x-show="errors.full_name">Please enter your full name</p>
+                </div>
+
+                <div>
+                    <label class="block mb-1 font-medium text-sm sm:text-base">Professional Title*</label>
+                    <input type="text" x-model="form.title" 
+                           :class="{'border-red-500': errors.title}"
+                           class="w-full p-2 sm:p-3 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                           placeholder="Web Developer" required>
+                    <p class="text-red-500 text-xs mt-1" x-show="errors.title">Please enter your professional title</p>
+                </div>
+
+                <div>
+                    <label class="block mb-1 font-medium text-sm sm:text-base">Short Bio <span class="text-gray-500">(optional)</span></label>
+                    <textarea x-model="form.bio" rows="3" class="w-full p-2 sm:p-3 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="A brief introduction about yourself"></textarea>
+                </div>
+
+                <div>
+                    <label class="block mb-1 font-medium text-sm sm:text-base">Location <span class="text-gray-500">(optional)</span></label>
+                    <input type="text" x-model="form.location" class="w-full p-2 sm:p-3 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="City, Country">
+                </div>
+
+                <div>
+                    <label class="block mb-1 font-medium text-sm sm:text-base">Profile Picture <span class="text-gray-500">(optional)</span></label>
+                    <div class="relative">
+                        <input type="file" @change="form.profile_image = $event.target.files[0]" accept="image/*" 
+                               class="w-full p-2 sm:p-3 border rounded absolute opacity-0 z-20 cursor-pointer">
+                        <div class="w-full p-2 sm:p-3 border rounded bg-gray-50 text-center">
+                            <span x-text="form.profile_image ? form.profile_image.name : 'Click to upload photo'" 
+                                  class="text-sm"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Contact & Social Links -->
+        <div x-show="step === 2" x-transition.opacity class="space-y-4">
+            <h2 class="text-lg sm:text-xl font-semibold">Contact & Social Links</h2>
+
+            <template x-if="stepErrors.message">
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 flex items-start">
+                    <svg class="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                    <p class="ml-3 text-sm text-red-700" x-text="stepErrors.message"></p>
+                </div>
+            </template>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block mb-1 font-medium text-sm sm:text-base">Email*</label>
+                    <input type="email" x-model="form.email" 
+                           :class="{'border-red-500': errors.email}"
+                           class="w-full p-2 sm:p-3 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                           placeholder="your@email.com" required>
+                    <p class="text-red-500 text-xs mt-1" x-show="errors.email">Please enter a valid email address</p>
+                </div>
+
+                <div>
+                    <label class="block mb-1 font-medium text-sm sm:text-base">Phone <span class="text-gray-500">(optional)</span></label>
+                    <input type="tel" x-model="form.phone" class="w-full p-2 sm:p-3 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="+1 234 567 8900">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                    <div class="sm:col-span-2 flex items-center bg-gray-100 p-2 sm:p-3 rounded-l border">
+                        <span class="text-sm truncate">linkedin.com/in/</span>
+                    </div>
+                    <div class="sm:col-span-3">
+                        <input type="text" x-model="form.linkedin" class="w-full p-2 sm:p-3 border rounded-r focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="yourprofile">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                    <div class="sm:col-span-2 flex items-center bg-gray-100 p-2 sm:p-3 rounded-l border">
+                        <span class="text-sm truncate">github.com/</span>
+                    </div>
+                    <div class="sm:col-span-3">
+                        <input type="text" x-model="form.github" class="w-full p-2 sm:p-3 border rounded-r focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="yourusername">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block mb-1 font-medium text-sm sm:text-base">Personal Website <span class="text-gray-500">(optional)</span></label>
+                    <input type="url" x-model="form.website" class="w-full p-2 sm:p-3 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="https://yourwebsite.com">
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Projects (Optional) -->
+        <div x-show="step === 3" x-transition.opacity class="space-y-4">
+            <h2 class="text-lg sm:text-xl font-semibold">Projects <span class="text-gray-500">(optional)</span></h2>
+            <p class="text-sm text-gray-600">Showcase your best work. You can add multiple projects.</p>
+
+            <template x-for="(project, index) in form.projects" :key="index">
+                <div class="mb-4 border-b pb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-medium">Project #<span x-text="index + 1"></span></h3>
+                        <button type="button" @click="form.projects.splice(index, 1)" class="text-red-600 text-sm hover:text-red-800">Remove</button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block mb-1 text-sm">Title</label>
+                            <input type="text" x-model="project.title" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Project Name">
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1 text-sm">Description</label>
+                            <textarea x-model="project.description" rows="2" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="What the project does"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1 text-sm">Tech Stack</label>
+                            <input type="text" x-model="project.tech_stack" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Technologies used">
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1 text-sm">Link</label>
+                            <input type="url" x-model="project.link" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Live demo or code repository">
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1 text-sm">Image</label>
+                            <input type="file" @change="form.projects[index].image = $event.target.files[0]" class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </template>
+            
+            <button type="button" @click="form.projects.push({})" class="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition">
+                + Add Another Project
+            </button>
+        </div>
+
+        <!-- Step 4: Experience (Optional) -->
+        <div x-show="step === 4" x-transition.opacity class="space-y-4">
+            <h2 class="text-lg sm:text-xl font-semibold">Work Experience <span class="text-gray-500">(optional)</span></h2>
+            <p class="text-sm text-gray-600">List your professional experience. You can add multiple entries.</p>
+
+            <template x-for="(exp, index) in form.experiences" :key="index">
+                <div class="mb-4 border-b pb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-medium">Experience #<span x-text="index + 1"></span></h3>
+                        <button type="button" @click="form.experiences.splice(index, 1)" class="text-red-600 text-sm hover:text-red-800">Remove</button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block mb-1 text-sm">Company</label>
+                            <input type="text" x-model="exp.company" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Company Name">
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1 text-sm">Role</label>
+                            <input type="text" x-model="exp.role" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Your Position">
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1 text-sm">Duration</label>
+                            <input type="text" x-model="exp.duration" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="MM/YYYY - MM/YYYY">
+                        </div>
+                    </div>
+                </div>
+            </template>
+            
+            <button type="button" @click="form.experiences.push({})" class="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition">
+                + Add Another Experience
+            </button>
+        </div>
+
+        <!-- Step 5: Education (Optional) -->
+        <div x-show="step === 5" x-transition.opacity class="space-y-4">
+            <h2 class="text-lg sm:text-xl font-semibold">Education <span class="text-gray-500">(optional)</span></h2>
+            <p class="text-sm text-gray-600">Add your educational background. You can add multiple entries.</p>
+
+            <template x-for="(edu, index) in form.education" :key="index">
+                <div class="mb-4 border-b pb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-medium">Education #<span x-text="index + 1"></span></h3>
+                        <button type="button" @click="form.education.splice(index, 1)" class="text-red-600 text-sm hover:text-red-800">Remove</button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block mb-1 text-sm">Institution</label>
+                            <input type="text" x-model="edu.institution" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="University/School Name">
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1 text-sm">Degree/Course</label>
+                            <input type="text" x-model="edu.course" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Bachelor of Science">
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1 text-sm">Year</label>
+                            <input type="text" x-model="edu.year" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="2015-2019">
+                        </div>
+                    </div>
+                </div>
+            </template>
+            
+            <button type="button" @click="form.education.push({})" class="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition">
+                + Add Another Education
+            </button>
+        </div>
+
+        <!-- Step 6: Achievements (Optional) -->
+        <div x-show="step === 6" x-transition.opacity class="space-y-4">
+            <h2 class="text-lg sm:text-xl font-semibold">Achievements <span class="text-gray-500">(optional)</span></h2>
+            <p class="text-sm text-gray-600">Highlight your certifications, awards, or notable accomplishments.</p>
+
+            <template x-for="(achieve, index) in form.achievements" :key="index">
+                <div class="mb-3 flex items-center">
+                    <input type="text" x-model="form.achievements[index]" class="flex-1 p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Certification/Award">
+                    <button type="button" @click="form.achievements.splice(index, 1)" class="ml-2 text-red-600 text-sm hover:text-red-800">Remove</button>
+                </div>
+            </template>
+            
+            <button type="button" @click="form.achievements.push('')" class="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition">
+                + Add Another Achievement
+            </button>
+        </div>
+
+        <!-- Step 7: Resume & Hobbies (Optional) -->
+        <div x-show="step === 7" x-transition.opacity class="space-y-4">
+            <h2 class="text-lg sm:text-xl font-semibold">Final Details <span class="text-gray-500">(optional)</span></h2>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block mb-1 font-medium text-sm sm:text-base">Upload Resume <span class="text-gray-500">(optional)</span></label>
+                    <div class="relative">
+                        <input type="file" @change="form.resume = $event.target.files[0]" accept=".pdf,.doc,.docx" 
+                               class="w-full p-2 sm:p-3 border rounded opacity-0 absolute z-20 cursor-pointer">
+                        <div class="w-full p-2 sm:p-3 border rounded bg-gray-50">
+                            <span x-text="form.resume ? form.resume.name : 'Click to upload resume (PDF or DOC)'" 
+                                  class="text-sm"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block mb-1 font-medium text-sm sm:text-base">Hobbies & Interests <span class="text-gray-500">(optional)</span></label>
+                    <input type="text" x-model="form.hobbies" class="w-full p-2 sm:p-3 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Photography, Hiking, Reading">
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <h3 class="font-medium text-blue-800 mb-2">Ready to generate!</h3>
+                    <p class="text-sm text-blue-700">Click "Generate Portfolio" to create your personalized portfolio website.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex justify-between mt-6 pt-4 border-t">
+            <button type="button" x-show="step > 1" @click="step--" 
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition text-sm sm:text-base">
+                Back
+            </button>
+            
+            <div x-show="step < maxStep" class="flex-1 text-center">
+                <button type="button" @click="goToNextStep()" 
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition text-sm sm:text-base">
+                    Continue
+                </button>
+                <p class="text-xs text-gray-500 mt-1" x-show="step < maxStep - 1"><span x-text="maxStep - step"></span> steps remaining</p>
+            </div>
+            
+            <button type="submit" x-show="step === maxStep" 
+                    class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition text-sm sm:text-base">
+                Generate Portfolio
+            </button>
+        </div>
+    </form>
+
+ <script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('formStepper', () => ({
+        step: 1,
+        maxStep: 7,
+        isSubmitting: false,
+        loadingProgress: 0,
+        loadingMessage: "Starting the process...",
+        loadingMessages: [
+            "Preparing your content...",
+            "Designing your layout...",
+            "Optimizing for all devices...",
+            "Almost there...",
+            "Final touches..."
+        ],
+        form: {
+            full_name: '',
+            title: '',
+            bio: '',
+            location: '',
+            email: '',
+            phone: '',
+            linkedin: '',
+            github: '',
+            website: '',
+            profile_image: null,
+            projects: [{}],
+            experiences: [{}],
+            education: [{}],
+            achievements: [''],
+            resume: null,
+            hobbies: ''
+        },
+        errors: {},
+        stepErrors: {
+            message: '',
+            fields: {}
+        },
+
+        validateStep() {
+            this.errors = {};
+            this.stepErrors = { message: '', fields: {} };
+
+            if (this.step === 1) {
+                if (!this.form.full_name.trim()) {
+                    this.errors.full_name = true;
+                    this.stepErrors.message = 'Please enter your full name';
+                    return false;
+                }
+                if (!this.form.title.trim()) {
+                    this.errors.title = true;
+                    this.stepErrors.message = 'Please enter your professional title';
+                    return false;
+                }
+            } else if (this.step === 2) {
+                if (!this.form.email.trim()) {
+                    this.errors.email = true;
+                    this.stepErrors.message = 'Email is required';
+                    return false;
+                } else if (!/^\S+@\S+\.\S+$/.test(this.form.email)) {
+                    this.errors.email = true;
+                    this.stepErrors.message = 'Please enter a valid email address';
+                    return false;
+                }
+            }
+
+            return true;
+        },
+
+        scrollToFirstError() {
+            this.$nextTick(() => {
+                const errorElement = document.querySelector('.border-red-500');
+                if (errorElement) {
+                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    errorElement.focus();
+                }
+            });
+        },
+
+        goToNextStep() {
+            if (this.validateStep() && this.step < this.maxStep) {
+                this.step++;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                this.scrollToFirstError();
+            }
+        },
+
+        updateLoadingProgress(minDuration = 3000) {
+            return new Promise((resolve) => {
+                const startTime = Date.now();
+                const interval = setInterval(() => {
+                    if (this.loadingProgress < 95) {
+                        this.loadingProgress += 1;
+                        const index = Math.floor(this.loadingProgress / (100 / this.loadingMessages.length));
+                        this.loadingMessage = this.loadingMessages[Math.min(index, this.loadingMessages.length - 1)];
+                    }
+                }, 100);
+
+                const checkMinTime = () => {
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed >= minDuration || this.loadingProgress >= 30) {
+                        clearInterval(interval);
+                        resolve();
+                    } else {
+                        setTimeout(checkMinTime, 100);
+                    }
+                };
+
+                checkMinTime();
+            });
+        },
+
+        async submitForm() {
+            if (!this.validateStep()) {
+                this.scrollToFirstError();
+                return;
+            }
+
+            this.isSubmitting = true;
+            this.loadingProgress = 0;
+            this.loadingMessage = "Starting the process...";
+
+            const minLoading = this.updateLoadingProgress();
+
+            try {
+                const formData = new FormData();
+                ['full_name', 'title', 'bio', 'location', 'email', 'phone',
+                 'linkedin', 'github', 'website', 'hobbies'].forEach(field => {
+                    formData.append(field, this.form[field] || '');
+                });
+
+                if (this.form.profile_image instanceof File) {
+                    formData.append('profile_image', this.form.profile_image);
+                }
+                if (this.form.resume instanceof File) {
+                    formData.append('resume', this.form.resume);
+                }
+
+                this.form.projects.forEach((project, index) => {
+                    for (let field in project) {
+                        if (field === 'image' && project.image instanceof File) {
+                            formData.append(`projects[${index}][image]`, project.image);
+                        } else {
+                            formData.append(`projects[${index}][${field}]`, project[field] || '');
+                        }
+                    }
+                });
+
+                this.form.experiences.forEach((exp, index) => {
+                    for (let field in exp) {
+                        formData.append(`experiences[${index}][${field}]`, exp[field] || '');
+                    }
+                });
+
+                this.form.education.forEach((edu, index) => {
+                    for (let field in edu) {
+                        formData.append(`education[${index}][${field}]`, edu[field] || '');
+                    }
+                });
+
+                this.form.achievements.forEach((achievement, index) => {
+                    formData.append(`achievements[${index}]`, achievement || '');
+                });
+
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                const responsePromise = fetch("{% url 'generate_page' %}", {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                await minLoading;
+
+                const response = await responsePromise;
+
+                this.loadingProgress = 100;
+                this.loadingMessage = "Finalizing your portfolio...";
+
+                setTimeout(async () => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else if (response.ok) {
+                        const data = await response.json();
+                        if (data?.redirect_url) {
+                            window.location.href = data.redirect_url;
+                        } else if (data?.error) {
+                            throw new Error(data.error);
+                        }
+                    } else {
+                        throw new Error('Submission failed');
+                    }
+                }, 500); // wait 0.5s for smooth finish
+            } catch (error) {
+                console.error('Error:', error);
+                this.stepErrors.message = 'There was an error submitting your form. Please try again.';
+                this.scrollToFirstError();
+            } finally {
+                this.isSubmitting = false;
+            }
+        }
+    }));
+});
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+<h1>All User Data</h1>
+
+<h2>Personal Details</h2>
+{% for item in personal_details %}
+  <p><strong>Name:</strong> {{ item.full_name }} | {{ item.get_owner_name }}</p>
+{% endfor %}
+
+<h2>Contact Info</h2>
+{% for item in contact_info %}
+  <p><strong>Email:</strong> {{ item.email }} | {{ item.get_owner_name }}</p>
+{% endfor %}
+
+<h2>Skills</h2>
+{% for item in skills %}
+  <p><strong>Skills:</strong> {{ item.get_skills }} | {{ item.get_owner_name }}</p>
+{% endfor %}
+
+<h2>Projects</h2>
+{% for item in projects %}
+  <p><strong>Title:</strong> {{ item.title }} | {{ item.get_owner_name }}</p>
+{% endfor %}
+
+<h2>Experience</h2>
+{% for item in experiences %}
+  <p><strong>Company:</strong> {{ item.company }} | {{ item.get_owner_name }}</p>
+{% endfor %}
+
+<h2>Education</h2>
+{% for item in education %}
+  <p><strong>Institution:</strong> {{ item.institution }} | {{ item.get_owner_name }}</p>
+{% endfor %}
+
+<h2>Achievements</h2>
+{% for item in achievements %}
+  <p>{{ item.achievement }} | {{ item.get_owner_name }}</p>
+{% endfor %}
+
+<h2>Resume</h2>
+{% for item in resumes %}
+  <p><a href="{{ item.resume.url }}">Download Resume</a> | {{ item.get_owner_name }}</p>
+{% endfor %}
+
+<h2>Overall Description</h2>
+{% for item in overall_descriptions %}
+  <p>{{ item.description }} | {{ item.get_owner_name }}</p>
+{% endfor %}
+
+<a href="/admin/testgoogle/project/" class="btn btn-primary">Edit My Projects</a>
+

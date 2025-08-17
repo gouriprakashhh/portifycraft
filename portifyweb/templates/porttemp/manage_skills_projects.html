@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Skills and Projects</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .item-box {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+        }
+        button {
+            padding: 8px 16px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #34495e;
+        }
+        .delete-btn {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <h2>Manage Projects and Skills</h2>
+
+    <!-- Projects Section -->
+    <h3>Projects</h3>
+    {% for project in projects %}
+    <div class="item-box">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="project_id" value="{{ project.id }}">
+
+            <label>Title:</label>
+            <input type="text" name="title" value="{{ project.title }}" required>
+
+            <label>Description:</label>
+            <textarea name="description">{{ project.description }}</textarea>
+
+            <label>Tech Stack:</label>
+            <input type="text" name="tech_stack" value="{{ project.tech_stack }}">
+
+            <label>Project Link:</label>
+            <input type="url" name="link" value="{{ project.link }}">
+
+            <button type="submit" name="update_project">Update Project</button>
+        </form>
+
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="project_id" value="{{ project.id }}">
+            <button type="submit" class="delete-btn" name="delete_project">Delete Project</button>
+        </form>
+    </div>
+    {% endfor %}
+
+    <!-- Skills Section -->
+    <h3>Skills</h3>
+    {% for skill in skills %}
+    <div class="item-box">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="skill_id" value="{{ skill.id }}">
+
+            <label>Skill Name:</label>
+            <input type="text" name="name" value="{{ skill.name }}" required>
+
+            <button type="submit" name="update_skill">Update Skill</button>
+        </form>
+    </div>
+    {% endfor %}
+
+    <!-- Add New Project Section -->
+    <h3>Add New Project</h3>
+    <div class="item-box">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="project_id" value="">
+
+            <label>Title:</label>
+            <input type="text" name="title" required>
+
+            <label>Description:</label>
+            <textarea name="description"></textarea>
+
+            <label>Tech Stack:</label>
+            <input type="text" name="tech_stack">
+
+            <label>Project Link:</label>
+            <input type="url" name="link">
+
+            <button type="submit" name="update_project">Add Project</button>
+        </form>
+    </div>
+
+</body>
+</html>

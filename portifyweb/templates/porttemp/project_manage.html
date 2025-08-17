@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" x-data="adminControlPanel()" class="font-ds-sans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=DS+Gothic:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+<!-- Sidebar for Admin Panel -->
+<div class="flex">
+    <div class="bg-blue-600 text-white w-64 p-6">
+        <h2 class="text-2xl font-semibold mb-8">Admin Control Panel</h2>
+        <nav>
+            <ul>
+                <li><a href="#" @click="showSection('projects')" class="block py-2 px-4 rounded hover:bg-blue-700">Manage Projects</a></li>
+                <li><a href="#" @click="showSection('resumes')" class="block py-2 px-4 rounded hover:bg-blue-700">Manage Resumes</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 p-6">
+        <div x-show="activeSection === 'projects'">
+            <h3 class="text-3xl font-semibold text-blue-700 mb-6">Manage Projects</h3>
+            
+            <!-- Toggle Section Buttons -->
+            <div class="flex justify-between mb-4">
+                <button @click="toggleSection('projects')" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Add/Delete Project Section</button>
+                <button @click="openModal('project')" class="bg-blue-500 text-white px-4 py-2 rounded-lg">+ New Project</button>
+            </div>
+
+            <!-- Project Section -->
+            <div x-show="showProjects" class="space-y-4">
+                <div x-for="(project, index) in projects" :key="index" class="bg-white shadow rounded-xl p-6">
+                    <h4 class="text-xl font-semibold mb-2" x-text="project.title"></h4>
+                    <p class="text-gray-600 mb-2" x-text="project.description"></p>
+                    <div class="flex justify-between mt-4">
+                        <button @click="editProject(project)" class="text-blue-600 hover:underline">Edit</button>
+                        <button @click="deleteProject(index)" class="text-red-600 hover:underline">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="activeSection === 'resumes'">
+            <h3 class="text-3xl font-semibold text-blue-700 mb-6">Manage Resumes</h3>
+            
+            <!-- Toggle Section Buttons -->
+            <div class="flex justify-between mb-4">
+                <button @click="toggleSection('resumes')" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Add/Delete Resume Section</button>
+                <button @click="openModal('resume')" class="bg-blue-500 text-white px-4 py-2 rounded-lg">+ New Resume</button>
+            </div>
+
+            <!-- Resume Section -->
+            <div x-show="showResumes" class="space-y-4">
+                <div x-for="(resume, index) in resumes" :key="index" class="bg-white shadow rounded-xl p-6">
+                    <h4 class="text-xl font-semibold mb-2" x-text="'Resume ' + (index + 1)"></h4>
+                    <p class="text-gray-600 mb-2" x-text="resume.hobbies"></p>
+                    <div class="flex justify-between mt-4">
+                        <button @click="editResume(resume)" class="text-blue-600 hover:underline">Edit</button>
+                        <button @click="deleteResume(index)" class="text-red-600 hover:underline">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for adding/editing projects and resumes -->
+        <div x-show="openModalFlag" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-xl w-full max-w-lg">
+                <h3 class="text-xl font-semibold mb-4" x-text="modalType === 'project' ? (editingProject ? 'Edit Project' : 'Add Project') : (editingResume ? 'Edit Resume' : 'Add Resume')"></h3>
+                <form @submit.prevent="saveEntry()">
+                    <div class="space-y-4">
+                        <template x-if="modalType === 'project'">
+                            <div>
+                                <input x-model="modalData.title" type="text" class="w-full border rounded-lg px-4 py-2" placeholder="Project Title">
+                                <textarea x-model="modalData.description" class="w-full border rounded-lg px-4 py-2" placeholder="Project Description"></textarea>
+                            </div>
+                        </template>
+                        <template x-if="modalType === 'resume'">
+                            <div>
+                                <textarea x-model="modalData.hobbies" class="w-full border rounded-lg px-4 py-2" placeholder="Hobbies"></textarea>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-4">
+                        <button @click="openModalFlag = false" type="button" class="bg-gray-300 px-4 py-2 rounded-lg text-gray-700">Cancel</button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function adminControlPanel() {
+    return {
+        activeSection: 'projects', // Default to show projects
+        showProjects: true, // Show/hide Projects Section
+        showResumes: true, // Show/hide Resumes Section
+        openModalFlag: false, // Show/hide modal for project/resume
+        modalType: '', // 'project' or 'resume'
+        editingProject: false,
+        editingResume: false,
+        modalData: { title: '', description: '', hobbies: '' },
+        projects: [],
+        resumes: [],
+        
+        // Switch section (Projects or Resumes)
+        showSection(section) {
+            this.activeSection = section;
+        },
+        
+        // Toggle visibility of sections (Add/Delete Section)
+        toggleSection(type) {
+            if (type === 'projects') this.showProjects = !this.showProjects;
+            if (type === 'resumes') this.showResumes = !this.showResumes;
+        },
+
+        // Open the modal to add or edit a project/resume
+        openModal(type) {
+            this.modalType = type;
+            this.openModalFlag = true;
+            if (type === 'project') {
+                this.modalData = { title: '', description: '', tech_stack: '' };
+                this.editingProject = false;
+            } else {
+                this.modalData = { hobbies: '' };
+                this.editingResume = false;
+            }
+        },
+
+        // Save the project or resume
+        saveEntry() {
+            if (this.modalType === 'project') {
+                if (this.editingProject) {
+                    // Update existing project
+                    this.projects = this.projects.map(p => p.id === this.modalData.id ? this.modalData : p);
+                } else {
+                    // Add new project
+                    this.projects.push({ id: Date.now(), ...this.modalData });
+                }
+            } else {
+                if (this.editingResume) {
+                    // Update existing resume
+                    this.resumes = this.resumes.map(r => r.id === this.modalData.id ? this.modalData : r);
+                } else {
+                    // Add new resume
+                    this.resumes.push({ id: Date.now(), ...this.modalData });
+                }
+            }
+            this.openModalFlag = false;
+        },
+
+        // Edit a project
+        editProject(project) {
+            this.modalData = { ...project };
+            this.editingProject = true;
+            this.openModal('project');
+        },
+
+        // Edit a resume
+        editResume(resume) {
+            this.modalData = { ...resume };
+            this.editingResume = true;
+            this.openModal('resume');
+        },
+
+        // Delete a project
+        deleteProject(index) {
+            this.projects.splice(index, 1);
+        },
+
+        // Delete a resume
+        deleteResume(index) {
+            this.resumes.splice(index, 1);
+        }
+    };
+}
+</script>
+
+</body>
+</html>

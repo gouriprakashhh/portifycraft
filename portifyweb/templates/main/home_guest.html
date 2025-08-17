@@ -1,0 +1,276 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PortifyCraft - Build stunning portfolios effortlessly with AI-powered tools." />
+  <meta name="author" content="PortifyCraft" />
+  <meta name="keywords" content="portfolio, AI portfolio builder, resume portfolio, professional portfolio" />
+  <title>PortifyCraft - Craft Your Stunning Portfolios</title>
+
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap" as="style">
+  <link rel="preload" href="{% static 'images/favicon.ico' %}" as="image" type="image/x-icon">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['DM Sans', 'sans-serif'],
+          },
+          transitionProperty: {
+            'scale': 'transform',
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts with preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- AOS Animations -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Favicon -->
+  <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+
+  <!-- Inline critical CSS -->
+  <style>
+    .hover-scale {
+      transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .hover-scale:hover {
+      transform: scale(1.05);
+    }
+    .blur-effect {
+      backdrop-filter: blur(10px);
+    }
+    .btn-transition {
+      transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    @media (max-width: 640px) {
+      .hero-title {
+        font-size: 2.5rem;
+        line-height: 1.2;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-white text-gray-900 antialiased">
+
+<!-- Header -->
+<header x-data="{ open: false }" class="fixed w-full z-50 bg-white border-b shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+    <div class="text-xl sm:text-2xl font-extrabold text-blue-700">PortifyCraft</div>
+
+    <!-- Desktop Nav -->
+    <nav class="hidden lg:flex items-center space-x-6">
+      <a href="#" class="text-sm font-medium hover:text-blue-600 focus:outline-none transition-colors">Templates</a>
+      <a href="#" class="text-sm font-medium hover:text-blue-600 focus:outline-none transition-colors">Pricing</a>
+      <a href="#" class="text-sm font-medium hover:text-blue-600 focus:outline-none transition-colors">About</a>
+      <a href="#" class="text-sm font-medium hover:text-blue-600 focus:outline-none transition-colors">Contact</a>
+      <a href="{% url 'dashboard' %}" class="text-sm font-medium hover:text-blue-600 focus:outline-none transition-colors">Dashboard</a>
+      <a href="#" class="text-sm font-medium hover:text-blue-600 focus:outline-none transition-colors">Examples</a>
+      
+      <div class="flex items-center space-x-4 ml-4">
+        <a href="{% url 'login' %}" class="text-sm font-semibold border-2 border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 hover:text-blue-700 btn-transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          Login
+        </a>
+        <a href="{% url 'signup' %}" class="text-sm font-semibold bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 btn-transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          Sign Up
+        </a>
+      </div>
+    </nav>
+
+    <!-- Mobile menu button -->
+    <button @click="open = !open" class="lg:hidden p-2 rounded-md text-blue-700 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Toggle menu">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu overlay and panel -->
+  <div x-show="open" x-transition:enter="transition-opacity ease-linear duration-300"
+       x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+       x-transition:leave="transition-opacity ease-linear duration-300"
+       x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+       @click.away="open = false"
+       class="fixed inset-0 bg-black bg-opacity-40 z-40 lg:hidden blur-effect"></div>
+
+  <div x-show="open" x-transition:enter="transition ease-in-out duration-300 transform"
+       x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+       x-transition:leave="transition ease-in-out duration-300 transform"
+       x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
+       class="fixed right-0 top-0 z-50 w-4/5 max-w-sm h-full bg-white shadow-xl flex flex-col px-6 py-6 space-y-5 overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <div class="text-xl font-bold text-blue-700">Menu</div>
+      <button @click="open = false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <nav class="flex flex-col gap-4">
+      <a href="#" class="text-base font-medium hover:text-blue-600 focus:outline-none transition-colors">Templates</a>
+      <a href="#" class="text-base font-medium hover:text-blue-600 focus:outline-none transition-colors">Pricing</a>
+      <a href="#" class="text-base font-medium hover:text-blue-600 focus:outline-none transition-colors">About</a>
+      <a href="#" class="text-base font-medium hover:text-blue-600 focus:outline-none transition-colors">Contact</a>
+      <a href="{% url 'dashboard' %}" class="text-sm font-medium hover:text-blue-600 focus:outline-none transition-colors">Dashboard</a>
+      <a href="#" class="text-base font-medium hover:text-blue-600 focus:outline-none transition-colors">Examples</a>
+      <hr class="border-gray-200 my-2">
+      
+      <div class="flex flex-col space-y-3 pt-2">
+        <a href="{% url 'login' %}" class="text-base font-semibold border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-md text-center hover:bg-blue-50 hover:text-blue-700 btn-transition focus:outline-none focus:ring-2 focus:ring-blue-500">
+          Login
+        </a>
+        <a href="{% url 'signup' %}" class="text-base font-semibold bg-blue-600 text-white px-6 py-3 rounded-md text-center hover:bg-blue-700 btn-transition focus:outline-none focus:ring-2 focus:ring-blue-500">
+          Sign Up
+        </a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="pt-32 pb-16 sm:pt-36 sm:pb-24 bg-gradient-to-b from-blue-50 to-white">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center" data-aos="fade-up">
+    <h1 class="hero-title text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight text-gray-900">
+      Craft Your <span class="text-blue-700">Stunning Portfolios</span> Instantly
+    </h1>
+    <p class="mt-4 sm:mt-6 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+      Use AI or upload your resume to build a beautiful website. No code, no hassle.
+    </p>
+    <div class="mt-8 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+      <a href="#" class="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] btn-transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        Try with Resume
+      </a>
+      <a href="{% url 'generate_page' %}" class="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 border-2 border-blue-700 text-blue-700 font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] btn-transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        Try with AI 
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="py-16 sm:py-24 bg-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 text-center" data-aos="fade-up">
+      <div class="hover-scale p-6 rounded-xl hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <h3 class="font-semibold text-lg mb-2">AI-Powered Templates</h3>
+        <p class="text-gray-600 text-sm sm:text-base">Let our AI craft your portfolio from a simple form.</p>
+      </div>
+      <div class="hover-scale p-6 rounded-xl hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+        </div>
+        <h3 class="font-semibold text-lg mb-2">Resume Upload</h3>
+        <p class="text-gray-600 text-sm sm:text-base">Generate a website instantly from your resume.</p>
+      </div>
+      <div class="hover-scale p-6 rounded-xl hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <h3 class="font-semibold text-lg mb-2">Responsive Design</h3>
+        <p class="text-gray-600 text-sm sm:text-base">Works perfectly on phones, tablets, and desktops.</p>
+      </div>
+      <div class="hover-scale p-6 rounded-xl hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+        </div>
+        <h3 class="font-semibold text-lg mb-2">Easy Customization</h3>
+        <p class="text-gray-600 text-sm sm:text-base">Adjust fonts, colors, and content with zero coding.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-blue-700 text-white py-12">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-col items-center text-center">
+      <div class="flex justify-center space-x-6 mb-6">
+        <a href="#" class="text-white hover:text-blue-200 transition-colors" aria-label="Facebook">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path>
+          </svg>
+        </a>
+        <a href="#" class="text-white hover:text-blue-200 transition-colors" aria-label="Twitter">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
+          </svg>
+        </a>
+        <a href="#" class="text-white hover:text-blue-200 transition-colors" aria-label="LinkedIn">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clip-rule="evenodd"></path>
+          </svg>
+        </a>
+      </div>
+      <p class="text-sm mb-4">PortifyCraft © 2025 – All rights reserved.</p>
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+        <a href="#" class="hover:underline transition-colors">Privacy</a>
+        <a href="#" class="hover:underline transition-colors">Terms</a>
+        <a href="#" class="hover:underline transition-colors">Contact</a>
+        <a href="#" class="hover:underline transition-colors">FAQ</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- JS -->
+<script>
+  // Load non-critical JS after page load
+  document.addEventListener('DOMContentLoaded', function() {
+    // Load AOS
+    var aosScript = document.createElement('script');
+    aosScript.src = 'https://unpkg.com/aos@2.3.1/dist/aos.js';
+    aosScript.onload = function() {
+      AOS.init({
+        once: true,
+        duration: 600,
+        easing: 'ease-out-quad',
+      });
+    };
+    document.body.appendChild(aosScript);
+    
+    // Load Feather Icons
+    var featherScript = document.createElement('script');
+    featherScript.src = 'https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js';
+    featherScript.onload = function() {
+      feather.replace();
+    };
+    document.body.appendChild(featherScript);
+  });
+</script>
+</body>
+</html>

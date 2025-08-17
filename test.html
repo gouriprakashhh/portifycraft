@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ step: 1 }" class="font-dmsans text-gray-900 bg-white">
+<head>
+    <meta charset="UTF-8">
+    <title>PortifyCraft | Create Your Portfolio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-50">
+    <form method="post" action=" " @submit.prevent class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-xl space-y-6">
+        {% csrf_token %}
+        <h1 class="text-2xl font-bold text-center">Create Your Portfolio</h1>
+
+        <!-- Step 1: Personal Info -->
+        <div x-show="step === 1" x-transition>
+            <h2 class="text-xl font-semibold mb-4">Step 1: Personal Details</h2>
+
+            <label class="block mb-2 font-medium">Full Name</label>
+            <input type="text" name="full_name" placeholder="John Doe" class="w-full mb-4 p-3 border rounded" required>
+
+            <label class="block mb-2 font-medium">Professional Title</label>
+            <input type="text" name="title" placeholder="Web Developer, UI/UX Designer" class="w-full mb-4 p-3 border rounded" required>
+
+            <label class="block mb-2 font-medium">Short Bio <span class="text-sm text-gray-500">(optional)</span></label>
+            <textarea name="bio" placeholder="Brief personal or career summary" class="w-full mb-4 p-3 border rounded" rows="3"></textarea>
+
+            <label class="block mb-2 font-medium">Location <span class="text-sm text-gray-500">(optional)</span></label>
+            <input type="text" name="location" placeholder="e.g., Kochi, Kerala" class="w-full mb-4 p-3 border rounded">
+
+            <div x-data="{ imageUrl: '' }">
+                <label class="block mb-2 font-medium">Profile Picture Upload <span class="text-sm text-gray-500">(optional)</span></label>
+                <input type="file" name="profile_picture" accept="image/*"
+                       @change="imageUrl = URL.createObjectURL($event.target.files[0])"
+                       class="w-full mb-4 p-3 border rounded">
+
+                <template x-if="imageUrl">
+                    <img :src="imageUrl" alt="Preview" class="mt-2 w-32 h-32 object-cover rounded-full border shadow">
+                </template>
+            </div>
+        </div>
+
+        <!-- Step 2: Contact & Social Links -->
+        <div x-show="step === 2" x-transition>
+            <h2 class="text-xl font-semibold mb-4">Step 2: Contact & Social Links</h2>
+
+            <label class="block mb-2 font-medium">Email Address</label>
+            <input type="email" name="email" placeholder="yourname@example.com" class="w-full mb-4 p-3 border rounded" required>
+
+            <label class="block mb-2 font-medium">Phone Number <span class="text-sm text-gray-500">(optional)</span></label>
+            <input type="tel" name="phone" placeholder="+91 9876543210" class="w-full mb-4 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">LinkedIn <span class="text-sm text-gray-500">(optional)</span></label>
+            <input type="url" name="linkedin" placeholder="https://linkedin.com/in/yourprofile" class="w-full mb-4 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">GitHub / GitLab <span class="text-sm text-gray-500">(optional)</span></label>
+            <input type="url" name="github" placeholder="https://github.com/yourprofile" class="w-full mb-4 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Twitter / X <span class="text-sm text-gray-500">(optional)</span></label>
+            <input type="url" name="twitter" placeholder="https://twitter.com/yourprofile" class="w-full mb-4 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Personal Blog / Website <span class="text-sm text-gray-500">(optional)</span></label>
+            <input type="url" name="website" placeholder="https://yourblog.com" class="w-full mb-4 p-3 border rounded">
+        </div>
+
+         <!-- Step 3: Design Preferences -->
+         <div x-show="step === 3" x-transition>
+            <h2 class="text-xl font-semibold mb-4">Step 3: Design Preferences</h2>
+            <!-- Primary Color -->
+            <label class="block mb-2 font-medium">Primary Color</label>
+            <input type="color" id="primaryColor" name="primary_color" class="w-16 h-10 p-1 rounded mb-2 border">
+            <div class="flex gap-2 mb-4">
+                <div class="w-8 h-8 rounded cursor-pointer bg-blue-600" onclick="document.getElementById('primaryColor').value='#1D4ED8'"></div>
+                <div class="w-8 h-8 rounded cursor-pointer bg-red-500" onclick="document.getElementById('primaryColor').value='#EF4444'"></div>
+                <div class="w-8 h-8 rounded cursor-pointer bg-green-500" onclick="document.getElementById('primaryColor').value='#10B981'"></div>
+                <div class="w-8 h-8 rounded cursor-pointer bg-purple-500" onclick="document.getElementById('primaryColor').value='#8B5CF6'"></div>
+            </div>
+            
+            <!-- Secondary Color -->
+            <label class="block mb-2 font-medium">Secondary Color</label>
+            <input type="color" id="secondaryColor" name="secondary_color" class="w-16 h-10 p-1 rounded mb-2 border">
+            <div class="flex gap-2 mb-4">
+                <div class="w-8 h-8 rounded cursor-pointer bg-yellow-400" onclick="document.getElementById('secondaryColor').value='#FBBF24'"></div>
+                <div class="w-8 h-8 rounded cursor-pointer bg-pink-400" onclick="document.getElementById('secondaryColor').value='#F472B6'"></div>
+                <div class="w-8 h-8 rounded cursor-pointer bg-gray-500" onclick="document.getElementById('secondaryColor').value='#6B7280'"></div>
+                <div class="w-8 h-8 rounded cursor-pointer bg-teal-400" onclick="document.getElementById('secondaryColor').value='#34D399'"></div>
+            </div>
+
+            <!-- Design Style -->
+            <label class="block mb-2 font-medium">Design Style</label>
+            <select name="design_style" class="w-full p-3 mb-4 border rounded">
+                <option value="minimalist">Minimalist</option>
+                <option value="professional">Professional</option>
+                <option value="modern">Modern</option>
+                <option value="creative">Creative</option>
+                <option value="dark">Dark Mode</option>
+                <option value="classic">Classic</option>
+                <option value="artistic">Artistic</option>
+                <option value="tech">Tech/Developer</option>
+                <option value="corporate">Corporate</option>
+                <option value="bold">Bold & Vibrant</option>
+            </select>
+
+            <!-- Animation Option -->
+            <label class="block mb-2 font-medium">Animations <span class="text-sm text-gray-500">(optional)</span></label>
+            <select name="animation_style" class="w-full p-3 border rounded">
+                <option value="">No Animation</option>
+                <option value="fade">Fade Transitions</option>
+                <option value="slide">Slide Animations</option>
+                <option value="zoom">Zoom Effects</option>
+                <option value="scale">Scale Transitions</option>
+                <option value="bounce">Bounce Effects</option>
+            </select>
+        </div>
+
+        <!-- Step 4: Device Preferences & Responsiveness -->
+<div x-show="step === 4" x-transition>
+    <h2 class="text-xl font-semibold mb-4">Step 4: Device Preferences & Responsiveness</h2>
+
+    <!-- Device Preference -->
+    <label class="block mb-2 font-medium">Which devices should your portfolio be optimized for?</label>
+    <div class="flex flex-wrap gap-4 mb-4">
+        <label><input type="checkbox" name="devices[]" value="desktop" class="mr-2">Desktop</label>
+        <label><input type="checkbox" name="devices[]" value="tablet" class="mr-2">Tablet</label>
+        <label><input type="checkbox" name="devices[]" value="mobile" class="mr-2">Mobile</label>
+    </div>
+
+    <!-- Hamburger Menu -->
+    <label class="block mb-2 font-medium">Do you want a hamburger menu?</label>
+    <select name="hamburger_menu" class="w-full mb-4 p-3 border rounded">
+        <option value="">Select</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+
+    <label class="block mb-2 font-medium">Menu Items (if yes)</label>
+    <input type="text" name="menu_items" placeholder="e.g., Home, About, Projects, Contact" class="w-full mb-4 p-3 border rounded">
+
+    <!-- Navbar -->
+    <label class="block mb-2 font-medium">Do you want a top navigation bar?</label>
+    <select name="navbar" class="w-full mb-4 p-3 border rounded">
+        <option value="">Select</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+
+    <label class="block mb-2 font-medium">Navbar Items (if yes)</label>
+    <input type="text" name="navbar_items" placeholder="e.g., Portfolio, Services, Blog" class="w-full mb-4 p-3 border rounded">
+
+    <!-- Footer -->
+    <label class="block mb-2 font-medium">Add social media links in the footer?</label>
+    <select name="footer_social" class="w-full mb-4 p-3 border rounded">
+        <option value="">Select</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+
+    <label class="block mb-2 font-medium">Add contact information in the footer?</label>
+    <select name="footer_contact" class="w-full mb-4 p-3 border rounded">
+        <option value="">Select</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+</div>
+
+<!-- Step 5: Skills -->
+<div x-show="step === 5" x-transition>
+    <h2 class="text-xl font-semibold mb-4">Step 5: Skills <span class="text-sm text-gray-500">(optional)</span></h2>
+    <input type="text" name="skills" placeholder="e.g., HTML, CSS, Python, React" class="w-full mb-4 p-3 border rounded">
+</div>
+
+<!-- Step 6: Projects -->
+<div x-show="step === 6" x-transition x-data="{ projects: [{}] }">
+    <h2 class="text-xl font-semibold mb-4">Step 6: Projects <span class="text-sm text-gray-500">(optional)</span></h2>
+
+    <template x-for="(project, index) in projects" :key="index">
+        <div class="mb-6 border-b pb-4">
+            <label class="block mb-2 font-medium">Project Title</label>
+            <input type="text" :name="'projects['+index+'][title]'" class="w-full mb-2 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Description</label>
+            <textarea :name="'projects['+index+'][description]'" class="w-full mb-2 p-3 border rounded"></textarea>
+
+            <label class="block mb-2 font-medium">Tech Stack</label>
+            <input type="text" :name="'projects['+index+'][tech_stack]'" placeholder="e.g., React, Node.js" class="w-full mb-2 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Link <span class="text-sm text-gray-500">(optional)</span></label>
+            <input type="url" :name="'projects['+index+'][link]'" class="w-full mb-2 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Image Upload <span class="text-sm text-gray-500">(optional)</span></label>
+            <input type="file" :name="'projects['+index+'][image]'" accept="image/*" class="w-full p-3 border rounded">
+            
+            <button type="button" class="mt-2 text-red-600" @click="projects.splice(index, 1)">Remove</button>
+        </div>
+    </template>
+
+    <button type="button" class="px-4 py-2 bg-blue-500 text-white rounded" @click="projects.push({})">Add Another Project</button>
+</div>
+
+
+<!-- Step 7: Experience -->
+<div x-show="step === 7" x-transition x-data="{ experiences: [{}] }">
+    <h2 class="text-xl font-semibold mb-4">Step 7: Experience <span class="text-sm text-gray-500">(optional)</span></h2>
+
+    <template x-for="(exp, index) in experiences" :key="index">
+        <div class="mb-6 border-b pb-4">
+            <label class="block mb-2 font-medium">Company Name</label>
+            <input type="text" :name="'experiences['+index+'][company]'" class="w-full mb-2 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Role</label>
+            <input type="text" :name="'experiences['+index+'][role]'" class="w-full mb-2 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Time Period <span class="text-sm text-gray-500">(optional)</span></label>
+            <input type="text" :name="'experiences['+index+'][duration]'" class="w-full p-3 border rounded">
+
+            <button type="button" class="mt-2 text-red-600" @click="experiences.splice(index, 1)">Remove</button>
+        </div>
+    </template>
+
+    <button type="button" class="px-4 py-2 bg-blue-500 text-white rounded" @click="experiences.push({})">Add Another Experience</button>
+</div>
+
+<!-- Step 8: Education -->
+<div x-show="step === 8" x-transition x-data="{ education: [{}] }">
+    <h2 class="text-xl font-semibold mb-4">Step 8: Education(School/College) <span class="text-sm text-gray-500">(optional)</span></h2>
+
+    <template x-for="(edu, index) in education" :key="index">
+        <div class="mb-6 border-b pb-4">
+            <label class="block mb-2 font-medium">Institution Name</label>
+            <input type="text" :name="'education['+index+'][institution]'" class="w-full mb-2 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Course/Class</label>
+            <input type="text" :name="'education['+index+'][course]'" class="w-full mb-2 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Board/University</label>
+            <input type="text" :name="'education['+index+'][board]'" class="w-full mb-2 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Year of Completion</label>
+            <input type="text" :name="'education['+index+'][year]'" class="w-full mb-2 p-3 border rounded">
+
+            <label class="block mb-2 font-medium">Percentage/CGPA</label>
+            <input type="text" :name="'education['+index+'][score]'" class="w-full mb-2 p-3 border rounded">
+
+            <button type="button" class="mt-2 text-red-600" @click="education.splice(index, 1)">Remove</button>
+        </div>
+    </template>
+
+    <button type="button" class="px-4 py-2 bg-blue-500 text-white rounded" @click="education.push({})">Add Another Education</button>
+</div>
+
+<!-- Step 9: Achievements -->
+<div x-show="step === 9" x-transition x-data="{ achievements: [''] }">
+    <h2 class="text-xl font-semibold mb-4">Step 9: Achievements <span class="text-sm text-gray-500">(optional)</span></h2>
+
+    <template x-for="(achieve, index) in achievements" :key="index">
+        <div class="mb-4">
+            <input type="text" :name="'achievements['+index+']'" class="w-full p-3 border rounded" placeholder="Achievement sentence">
+            <button type="button" class="mt-1 text-red-600" @click="achievements.splice(index, 1)">Remove</button>
+        </div>
+    </template>
+
+    <button type="button" class="px-4 py-2 bg-blue-500 text-white rounded" @click="achievements.push('')">Add Another Achievement</button>
+</div>
+
+<!-- Step 10: Resume & Hobbies -->
+<div x-show="step === 10" x-transition>
+    <h2 class="text-xl font-semibold mb-4">Step 10: Resume & Hobbies</h2>
+
+    <label class="block mb-2 font-medium">Upload Resume <span class="text-sm text-gray-500">(optional)</span></label>
+    <input type="file" name="resume" accept=".pdf,.doc,.docx" class="w-full mb-4 p-3 border rounded">
+
+    <label class="block mb-2 font-medium">Hobbies/Interests <span class="text-sm text-gray-500">(optional, comma-separated)</span></label>
+    <input type="text" name="hobbies" placeholder="e.g., reading, gaming, music" class="w-full p-3 border rounded">
+</div>
+<!-- Step 11: Overall Description / Prompt -->
+<div x-show="step === 11" x-transition>
+    <h2 class="text-xl font-semibold mb-4">Step 11: Overall Description or Prompt <span class="text-sm text-gray-500">(optional)</span></h2>
+
+    <textarea name="overall_description" placeholder="Give a general idea or prompt about your portfolio (optional)"
+              class="w-full p-4 border rounded h-32"></textarea>
+</div>
+
+
+        <div class="flex justify-between mt-6">
+            <button type="button" x-show="step > 1" x-on:click="step -= 1" class="px-6 py-2 bg-gray-500 text-white rounded">Back</button>
+            <button type="button" x-show="step < 11" x-on:click="step += 1" class="px-6 py-2 bg-blue-600 text-white rounded">Next</button>
+            <button type="submit" x-show="step === 11" class="px-6 py-2 bg-green-600 text-white rounded">Submit</button>
+        </div>
+    </form>
+</body>
+
+</html>

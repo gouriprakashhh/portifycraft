@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PortifyCraft - Your portfolio dashboard" />
+  <title>PortifyCraft | Dashboard</title>
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap" as="style">
+  <link rel="preload" href="{% static 'images/favicon.ico' %}" as="image" type="image/x-icon">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['DM Sans', 'sans-serif'],
+          },
+          transitionProperty: {
+            'scale': 'transform',
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease-in',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- AlpineJS -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Inline critical CSS -->
+  <style>
+    .hover-scale {
+      transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .hover-scale:hover {
+      transform: scale(1.02);
+    }
+    .blur-effect {
+      backdrop-filter: blur(10px);
+    }
+    .btn-transition {
+      transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    @media (max-width: 640px) {
+      .hero-title {
+        font-size: 2.25rem;
+        line-height: 1.2;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-white text-gray-900 antialiased">
+
+<!-- Header -->
+<header x-data="{ open: false }" class="fixed w-full z-50 bg-white border-b shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+    <div class="text-xl sm:text-2xl font-extrabold text-blue-700">PortifyCraft</div>
+
+    <!-- Desktop Navigation -->
+    <nav class="hidden lg:flex items-center space-x-6">
+      <a href="{% url 'dashboard' %}" class="text-sm font-medium hover:text-blue-600 focus:outline-none transition-colors">Dashboard</a>
+      <a href="#" class="text-sm font-medium hover:text-blue-600 focus:outline-none transition-colors">Projects</a>
+      <a href="#" class="text-sm font-medium hover:text-blue-600 focus:outline-none transition-colors">Settings</a>
+      <a href="{% url 'logout' %}" class="text-sm font-semibold border-2 border-blue-600 text-red-600 px-4 py-2 rounded-md hover:bg-blue-50 hover:text-blue-700 btn-transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        Logout
+      </a>
+    </nav>
+
+    <!-- Mobile menu button -->
+    <button @click="open = !open" class="lg:hidden p-2 rounded-md text-blue-700 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Toggle menu">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu overlay and panel -->
+  <div x-show="open" x-transition:enter="transition-opacity ease-linear duration-200"
+       x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+       x-transition:leave="transition-opacity ease-linear duration-200"
+       x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+       @click.away="open = false"
+       class="fixed inset-0 bg-black bg-opacity-40 z-40 lg:hidden blur-effect"></div>
+
+  <div x-show="open" x-transition:enter="transition ease-in-out duration-300 transform"
+       x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+       x-transition:leave="transition ease-in-out duration-300 transform"
+       x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
+       class="fixed right-0 top-0 z-50 w-4/5 max-w-sm h-full bg-white shadow-xl flex flex-col px-6 py-6 space-y-5 overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <div class="text-xl font-bold text-blue-700">Menu</div>
+      <button @click="open = false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <nav class="flex flex-col gap-4">
+      <a href="{% url 'dashboard' %}" class="text-base font-medium hover:text-blue-600 focus:outline-none transition-colors">Dashboard</a>
+      <a href="#" class="text-base font-medium hover:text-blue-600 focus:outline-none transition-colors">Projects</a>
+      <a href="#" class="text-base font-medium hover:text-blue-600 focus:outline-none transition-colors">Settings</a>
+      <hr class="border-gray-200 my-2">
+      <a href="{% url 'logout' %}" class="text-base font-semibold border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-md text-center hover:bg-blue-50 hover:text-blue-700 btn-transition focus:outline-none focus:ring-2 focus:ring-blue-500">
+        Logout
+      </a>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="pt-28 pb-12 sm:pt-32 sm:pb-16 bg-gradient-to-b from-blue-50 to-white">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+    <h1 class="hero-title text-3xl sm:text-4xl font-extrabold mb-4 text-gray-900">
+      Welcome, <span class="text-blue-600">{{ user.name }}</span>
+    </h1>
+    <p class="text-base sm:text-lg text-gray-600">Your email: {{ user.email }}</p>
+    <p class="text-xs sm:text-sm text-gray-500 mt-2">Last login: {{ user.last_login|default:"Never" }}</p>
+  </div>
+</section>
+
+<!-- Create Website Section -->
+<section class="py-8 sm:py-10 text-center">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl sm:text-2xl font-bold mb-6 text-gray-900">Build Your Portfolio Website</h2>
+    <div class="flex flex-wrap justify-center gap-3 sm:gap-4">
+      <a href="#" class="inline-flex items-center justify-center px-5 py-2.5 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm hover:shadow-md btn-transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        Create Using Resume
+      </a>
+      <a href="{% url 'generate_page' %}" class="inline-flex items-center justify-center px-5 py-2.5 sm:px-6 sm:py-3 border-2 border-blue-600 text-blue-600 font-medium rounded-lg shadow-sm hover:shadow-md btn-transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        Create Using AI
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Dashboard Section -->
+<section class="py-12 sm:py-16 bg-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+      <div class="p-5 sm:p-6 bg-blue-50 rounded-xl shadow-sm hover-scale transition-shadow hover:shadow-md">
+        <h2 class="text-lg sm:text-xl font-semibold mb-3 text-gray-900">Your Dashboard</h2>
+        <p class="text-sm sm:text-base text-gray-700 mb-4">Here's all your data...</p>
+        <!-- Placeholder for widgets/tables/graphs -->
+        <div class="h-40 bg-white rounded-lg flex items-center justify-center text-gray-400">
+          Analytics Preview
+        </div>
+        <div class="mt-4 text-xs sm:text-sm text-blue-700">More features coming soon!</div>
+      </div>
+
+      <div class="p-5 sm:p-6 bg-blue-50 rounded-xl shadow-sm hover-scale transition-shadow hover:shadow-md">
+        <h2 class="text-lg sm:text-xl font-semibold mb-3 text-gray-900">Profile Settings</h2>
+        <div class="flex flex-wrap gap-3 mt-4">
+          <button class="flex-1 min-w-[120px] bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md btn-transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Edit Profile
+          </button>
+          <button class="flex-1 min-w-[120px] border-2 border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 btn-transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Change Password
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-blue-700 text-white py-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-col items-center text-center">
+      <p class="text-sm mb-4">PortifyCraft © 2025 – All rights reserved.</p>
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs sm:text-sm">
+        <a href="#" class="hover:underline transition-colors">Privacy</a>
+        <a href="#" class="hover:underline transition-colors">Terms</a>
+        <a href="#" class="hover:underline transition-colors">Help</a>
+        <a href="#" class="hover:underline transition-colors">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Load non-critical JS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Load Feather Icons
+    var featherScript = document.createElement('script');
+    featherScript.src = 'https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js';
+    featherScript.onload = function() {
+      feather.replace();
+    };
+    document.body.appendChild(featherScript);
+  });
+</script>
+</body>
+</html>

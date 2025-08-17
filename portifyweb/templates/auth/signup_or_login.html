@@ -1,0 +1,20 @@
+<!-- signup_or_login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account Options</title>
+</head>
+<body>
+    <h2>Welcome! You are logged in using an email that is not registered in our system.</h2>
+    <p>Would you like to create an account or log in?</p>
+    
+    <form action="{% url 'signup' %}" method="get">
+        <button type="submit">Create Account</button>
+    </form>
+
+    <form action="{% url 'login' %}" method="get">
+        <button type="submit">Log In</button>
+    </form>
+</body>
+</html>

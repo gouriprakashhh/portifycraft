@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Template</title>
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- TinyMCE -->
+    <script src="https://cdn.tiny.cloud/1/ptnnld4zaejtvsynl0xqi3vr5bt1tfzbyg2btlnnzaf39uf4/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <!-- Additional Styles -->
+    <style>
+        /* Sidebar for the Editor */
+        #editor-sidebar {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background: #f9fafb;
+            transition: 0.3s;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        #editor-sidebar.open {
+            right: 0;
+        }
+
+        @media (max-width: 640px) {
+            #editor-sidebar {
+                width: 100%;
+            }
+        }
+
+        #editor-header {
+            background-color: #1e40af;
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Main Content -->
+    <div id="content" class="max-w-screen-lg mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Placeholder for content, will be injected dynamically -->
+        <div class="editable" contenteditable="true">
+            <h2>Editable Content</h2>
+            <p>Click here to edit this content.</p>
+        </div>
+        <div class="editable-image">
+            <img src="https://via.placeholder.com/150" alt="Editable Image" />
+        </div>
+    </div>
+
+    <!-- Editor Sidebar -->
+    <div id="editor-sidebar">
+        <div id="editor-header">
+            <span class="text-base sm:text-lg">Edit</span>
+            <button id="close-btn" class="text-xl sm:text-2xl px-2">&times;</button>
+        </div>
+        <textarea id="tiny-editor" class="flex-grow w-full"></textarea>
+        <div class="p-4 border-t text-right">
+            <button id="save-btn" class="bg-blue-600 text-white px-4 py-2 rounded w-full sm:w-auto">Save</button>
+        </div>
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <script>
+        let activeElement = null;
+        let editingImage = false;
+    
+        // Add event listeners to editable elements
+        document.querySelectorAll('.editable, .editable-image, .editable-image img').forEach(el => {
+            el.addEventListener('click', (e) => {
+                activeElement = el.closest('.editable-image') || el;
+                editingImage = activeElement.tagName.toLowerCase() === 'img' || activeElement.classList.contains('editable-image');
+    
+                if (activeElement.classList.contains('editable-image')) {
+                    const imgEl = activeElement.querySelector('img');
+                    if (imgEl) activeElement = imgEl;
+                }
+    
+                // Open the editor sidebar and initialize TinyMCE
+                tinymce.get('tiny-editor')?.destroy();
+                document.getElementById('editor-sidebar').classList.add('open');
+    
+                tinymce.init({
+                    selector: '#tiny-editor',
+                    menubar: false,
+                    height: 300,
+                    plugins: editingImage ? [
+                        'image'
+                    ] : [
+                        'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+                        'checklist', 'mediaembed', 'casechange', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable',
+                        'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography',
+                        'inlinecss', 'markdown', 'importword', 'exportword', 'exportpdf'
+                    ],
+                    toolbar: editingImage
+                        ? 'undo redo | image | link'
+                        : 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                    font_formats: 'Poppins=Poppins;Inter=Inter;Arial=Arial',
+                    fontsize_formats: '12px 14px 16px 18px 24px 36px',
+                    image_title: true,
+                    automatic_uploads: true,
+                    file_picker_types: 'image',
+                    file_picker_callback: function (callback, value, meta) {
+                        if (meta.filetype === 'image') {
+                            const input = document.createElement('input');
+                            input.setAttribute('type', 'file');
+                            input.setAttribute('accept', 'image/*');
+                            input.onchange = function () {
+                                const file = this.files[0];
+                                const formData = new FormData();
+                                formData.append('image', file);
+    
+                                fetch('/upload-image/', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.url) {
+                                        callback(data.url);
+                                    } else {
+                                        alert('Image upload failed: No URL returned.');
+                                    }
+                                })
+                                .catch(() => {
+                                    alert('Image upload failed.');
+                                });
+                            };
+                            input.click();
+                        }
+                    },
+                    mergetags_list: [
+                        { value: 'First.Name', title: 'First Name' },
+                        { value: 'Email', title: 'Email' },
+                    ],
+                    ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+                    setup: function (editor) {
+                        editor.on('init', function () {
+                            editor.setContent(
+                                editingImage
+                                    ? `<img src="${activeElement.src}" />`
+                                    : activeElement.innerHTML
+                            );
+                        });
+                    }
+                });
+            });
+        });
+    
+        // Save changes after editing
+        document.getElementById('save-btn').addEventListener('click', () => {
+            if (activeElement && tinymce.get('tiny-editor')) {
+                const content = tinymce.get('tiny-editor').getContent();
+                if (editingImage) {
+                    const match = content.match(/<img[^>]*src=["']([^"']+)["']/);
+                    if (match && match[1]) {
+                        activeElement.src = match[1];
+                    }
+                } else {
+                    activeElement.innerHTML = content;
+                }
+                document.getElementById('editor-sidebar').classList.remove('open');
+                tinymce.get('tiny-editor').destroy();
+            }
+        });
+    
+        // Close the editor sidebar
+        document.getElementById('close-btn').addEventListener('click', () => {
+            document.getElementById('editor-sidebar').classList.remove('open');
+            tinymce.get('tiny-editor')?.destroy();
+        });
+    </script>
+    
+</body>
+</html>
